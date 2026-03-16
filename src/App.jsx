@@ -1,17 +1,15 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { ChevronDown, Moon, Sun, Users, BookOpen, Heart, DollarSign, Zap, Leaf, MapPin, TrendingUp, TrendingDown, Minus, Activity, BarChart2, Clock, X, Plus, Globe } from 'lucide-react';
+import { ChevronDown, Moon, Sun, Users, BookOpen, Heart, DollarSign, Zap, Leaf, MapPin, TrendingUp, TrendingDown, Minus, Activity, BarChart2, Clock, X, Plus, Globe, Map } from 'lucide-react';
 
 // --- Rigid Factual 2024-25 State Baselines ---
-// Sources: NFHS-5 (Sex Ratio, TFR), SRS 2020 (IMR, LifeExp, MMR), PLFS 23-24 (Unemp, FLFP), AISHE 21-22 (GER), MoSPI/RBI (GDP), Census (Area)
+// Sources: NFHS-5 (Sex Ratio, TFR), SRS 2020 (IMR, LifeExp), PLFS 23-24 (Unemp, FLFP), AISHE 21-22 (GER), MoSPI/RBI (GDP), Census (Area)
 const STATES_INFO = [
     { name: "Andhra Pradesh", type: "State_Coast", base: { pop: 53.8, area: 162.9, gdp: 2750, lit: 67.4, fLit: 60.0, for: 18.2, urb: 35.0, tfr: 1.7, sexRatio: 1045, imr: 21, lifeExp: 70.3, unemp: 4.1, flfp: 45.0, ger: 37.7, rel: { h: 90.8, m: 7.3, c: 1.4, s: 0.0, o: 0.5 } } },
-    { name: "Arunachal Pradesh", type: "State_NE", base: { pop: 1.6, area: 83.7, gdp: 2900, lit: 65.4, fLit: 59.5, for: 79.3, urb: 22.9, tfr: 1.7, sexRatio: 938, imr: 36, lifeExp: 67.5, unemp: 5.5, flfp: 35.0, ger: 30.5, rel: { h: 29.0, m: 1.9, c: 30.3, s: 0.2, o: 38.6 } } },
-    { name: "Assam", type: "State_NE", base: { pop: 36.3, area: 78.4, gdp: 1650, lit: 72.2, fLit: 66.3, for: 36.1, urb: 15.0, tfr: 1.9, sexRatio: 1012, imr: 36, lifeExp: 66.8, unemp: 6.1, flfp: 32.5, ger: 17.1, rel: { h: 61.5, m: 34.2, c: 3.7, s: 0.1, o: 0.5 } } },
+    { name: "Assam", type: "State_NE", base: { pop: 36.3, area: 78.4, gdp: 1650, lit: 72.2, fLit: 66.3, for: 36.1, urb: 15.0, tfr: 1.9, sexRatio: 1012, imr: 36, lifeExp: 67.9, unemp: 6.1, flfp: 32.5, ger: 17.1, rel: { h: 61.5, m: 34.2, c: 3.7, s: 0.1, o: 0.5 } } },
     { name: "Bihar", type: "State_Plains", base: { pop: 135.0, area: 94.1, gdp: 900, lit: 70.9, fLit: 60.5, for: 7.8, urb: 12.5, tfr: 2.98, sexRatio: 1090, imr: 27, lifeExp: 69.5, unemp: 6.0, flfp: 15.5, ger: 17.1, rel: { h: 82.7, m: 16.9, c: 0.1, s: 0.0, o: 0.3 } } },
     { name: "Chhattisgarh", type: "State_Central", base: { pop: 31.0, area: 135.1, gdp: 2000, lit: 70.3, fLit: 60.2, for: 41.1, urb: 23.2, tfr: 2.1, sexRatio: 1015, imr: 38, lifeExp: 65.2, unemp: 3.5, flfp: 55.4, ger: 19.5, rel: { h: 93.3, m: 2.0, c: 1.9, s: 0.3, o: 2.5 } } },
     { name: "Delhi", type: "UT_Metro", base: { pop: 22.0, area: 1.48, gdp: 5900, lit: 86.2, fLit: 82.4, for: 13.2, urb: 97.5, tfr: 1.5, sexRatio: 913, imr: 14, lifeExp: 75.8, unemp: 5.1, flfp: 25.4, ger: 47.6, rel: { h: 81.7, m: 12.9, c: 0.9, s: 3.4, o: 1.1 } } },
-    { name: "Goa", type: "State_Coast", base: { pop: 1.6, area: 3.7, gdp: 7800, lit: 88.7, fLit: 84.6, for: 33.1, urb: 62.2, tfr: 1.3, sexRatio: 973, imr: 5, lifeExp: 73.3, unemp: 9.5, flfp: 28.0, ger: 33.0, rel: { h: 66.1, m: 8.3, c: 25.1, s: 0.1, o: 0.4 } } },
-    { name: "Gujarat", type: "State_Coast", base: { pop: 72.5, area: 196.0, gdp: 4200, lit: 78.0, fLit: 69.7, for: 7.5, urb: 45.0, tfr: 1.9, sexRatio: 919, imr: 23, lifeExp: 70.2, unemp: 2.2, flfp: 33.5, ger: 24.1, rel: { h: 88.6, m: 9.7, c: 0.5, s: 0.1, o: 1.1 } } },
+    { name: "Gujarat", type: "State_Coast", base: { pop: 72.5, area: 196.0, gdp: 4200, lit: 78.0, fLit: 69.7, for: 7.5, urb: 45.0, tfr: 1.9, sexRatio: 965, imr: 23, lifeExp: 70.2, unemp: 2.2, flfp: 33.5, ger: 24.1, rel: { h: 88.6, m: 9.7, c: 0.5, s: 0.1, o: 1.1 } } },
     { name: "Haryana", type: "State_North", base: { pop: 30.5, area: 44.2, gdp: 4450, lit: 75.5, fLit: 65.9, for: 3.6, urb: 38.0, tfr: 1.9, sexRatio: 926, imr: 27, lifeExp: 69.4, unemp: 6.1, flfp: 20.2, ger: 32.0, rel: { h: 87.5, m: 7.0, c: 0.2, s: 4.9, o: 0.4 } } },
     { name: "Himachal Pradesh", type: "State_Hill", base: { pop: 7.8, area: 55.6, gdp: 3200, lit: 82.8, fLit: 76.6, for: 27.7, urb: 10.0, tfr: 1.6, sexRatio: 1040, imr: 17, lifeExp: 72.6, unemp: 4.0, flfp: 52.5, ger: 43.1, rel: { h: 95.2, m: 2.2, c: 0.2, s: 1.2, o: 1.2 } } },
     { name: "Jharkhand", type: "State_Central", base: { pop: 41.0, area: 79.7, gdp: 1380, lit: 66.4, fLit: 55.4, for: 29.7, urb: 24.1, tfr: 2.26, sexRatio: 1050, imr: 25, lifeExp: 67.1, unemp: 3.1, flfp: 35.2, ger: 18.6, rel: { h: 67.8, m: 14.5, c: 4.3, s: 0.2, o: 13.2 } } },
@@ -22,7 +20,6 @@ const STATES_INFO = [
     { name: "Odisha", type: "State_East", base: { pop: 47.5, area: 155.7, gdp: 2250, lit: 72.9, fLit: 64.0, for: 33.1, urb: 18.0, tfr: 1.8, sexRatio: 1063, imr: 36, lifeExp: 69.8, unemp: 4.5, flfp: 35.5, ger: 21.4, rel: { h: 93.6, m: 2.2, c: 2.8, s: 0.1, o: 1.3 } } },
     { name: "Punjab", type: "State_North", base: { pop: 31.5, area: 50.3, gdp: 2550, lit: 75.8, fLit: 70.7, for: 3.7, urb: 40.0, tfr: 1.6, sexRatio: 938, imr: 18, lifeExp: 72.7, unemp: 6.1, flfp: 22.0, ger: 30.1, rel: { h: 38.5, m: 1.9, c: 1.3, s: 57.7, o: 0.6 } } },
     { name: "Rajasthan", type: "State_West", base: { pop: 84.0, area: 342.2, gdp: 2150, lit: 66.1, fLit: 52.1, for: 4.8, urb: 26.0, tfr: 2.0, sexRatio: 1009, imr: 32, lifeExp: 69.0, unemp: 4.0, flfp: 42.5, ger: 25.0, rel: { h: 88.5, m: 9.1, c: 0.1, s: 1.3, o: 1.0 } } },
-    { name: "Sikkim", type: "State_NE", base: { pop: 0.7, area: 7.0, gdp: 7400, lit: 81.4, fLit: 76.4, for: 47.1, urb: 25.2, tfr: 1.1, sexRatio: 890, imr: 5, lifeExp: 73.1, unemp: 4.5, flfp: 41.2, ger: 28.0, rel: { h: 57.8, m: 1.6, c: 9.9, s: 0.3, o: 30.4 } } },
     { name: "Tamil Nadu", type: "State_South", base: { pop: 78.5, area: 130.0, gdp: 4350, lit: 80.1, fLit: 73.4, for: 20.3, urb: 51.0, tfr: 1.4, sexRatio: 1088, imr: 13, lifeExp: 72.6, unemp: 3.5, flfp: 40.5, ger: 47.0, rel: { h: 87.6, m: 5.9, c: 6.1, s: 0.1, o: 0.3 } } },
     { name: "Telangana", type: "State_South", base: { pop: 39.5, area: 112.0, gdp: 4900, lit: 66.5, fLit: 57.9, for: 24.0, urb: 45.0, tfr: 1.8, sexRatio: 1049, imr: 21, lifeExp: 69.6, unemp: 4.2, flfp: 35.5, ger: 39.1, rel: { h: 85.1, m: 12.7, c: 1.3, s: 0.1, o: 0.8 } } },
     { name: "Uttar Pradesh", type: "State_Plains", base: { pop: 242.0, area: 240.9, gdp: 1400, lit: 73.0, fLit: 61.0, for: 6.1, urb: 24.0, tfr: 2.4, sexRatio: 1017, imr: 38, lifeExp: 65.6, unemp: 3.5, flfp: 20.5, ger: 24.1, rel: { h: 79.7, m: 19.3, c: 0.2, s: 0.3, o: 0.5 } } },
@@ -198,29 +195,38 @@ export default function App() {
 
   return (
     <div className={darkMode ? 'dark' : ''}>
-      <div className="min-h-screen bg-slate-50 dark:bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] dark:from-[#0f172a] dark:via-[#020617] dark:to-[#081226] text-slate-800 dark:text-slate-200 transition-colors duration-300 font-sans pb-12 relative">
+      <div className="min-h-screen bg-slate-50 dark:bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] dark:from-[#0f172a] dark:via-[#020617] dark:to-[#081226] text-slate-800 dark:text-slate-200 transition-colors duration-300 font-sans pb-12 relative overflow-x-hidden">
         
         {/* Subtle Grid Overlay */}
         <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:64px_64px] pointer-events-none opacity-0 dark:opacity-100 mix-blend-overlay"></div>
 
         {/* Premium Header */}
         <header className="bg-gradient-to-r from-orange-600 via-slate-800 to-green-700 dark:from-[#1c1208]/90 dark:via-[#020617]/90 dark:to-[#061a12]/90 dark:backdrop-blur-lg text-white shadow-[0_4px_30px_rgba(0,0,0,0.5)] sticky top-0 z-50 border-b border-slate-200 dark:border-white/10">
-          <div className="max-w-7xl mx-auto px-6 py-6 flex flex-col md:flex-row justify-between items-center gap-4">
-            <div className="flex items-center gap-4">
-              <div className="p-2.5 bg-white/10 dark:bg-white/5 backdrop-blur-md rounded-xl shadow-inner border border-white/20 dark:border-white/10">
-                <Globe size={32} className="text-amber-300 animate-pulse" />
+          <div className="max-w-7xl mx-auto px-4 md:px-6 py-4 md:py-6 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div className="flex items-center gap-3 md:gap-4 w-full md:w-auto justify-between md:justify-start">
+              <div className="flex items-center gap-3">
+                <div className="p-2 md:p-2.5 bg-white/10 dark:bg-white/5 backdrop-blur-md rounded-xl shadow-inner border border-white/20 dark:border-white/10">
+                  <Globe size={28} className="text-amber-300 animate-pulse md:w-8 md:h-8" />
+                </div>
+                <div>
+                  <h1 className="text-xl md:text-3xl font-black tracking-tighter">
+                    FACTUAL INDIA <span className="text-amber-300 dark:text-transparent dark:bg-clip-text dark:bg-gradient-to-r dark:from-amber-300 dark:to-orange-300">2050</span>
+                  </h1>
+                  <p className="text-white/80 dark:text-white/60 text-[10px] md:text-xs font-bold tracking-widest uppercase mt-0.5">Rigid State Baselines (NFHS-5, SRS, PLFS)</p>
+                </div>
               </div>
-              <div>
-                <h1 className="text-2xl md:text-3xl font-black tracking-tighter">
-                  FACTUAL INDIA <span className="text-amber-300 dark:text-transparent dark:bg-clip-text dark:bg-gradient-to-r dark:from-amber-300 dark:to-orange-300">2050</span>
-                </h1>
-                <p className="text-white/80 dark:text-white/60 text-xs font-bold tracking-widest uppercase mt-0.5">Rigid State Baselines (NFHS-5, SRS, PLFS)</p>
-              </div>
+              
+              <button 
+                onClick={() => setDarkMode(!darkMode)} 
+                className="md:hidden p-2.5 bg-white/10 rounded-full backdrop-blur border border-white/10 shadow-sm"
+              >
+                {darkMode ? <Sun size={18} className="text-amber-300" /> : <Moon size={18} className="text-slate-100" />}
+              </button>
             </div>
             
             <button 
               onClick={() => setDarkMode(!darkMode)} 
-              className="p-3 bg-white/10 hover:bg-white/20 rounded-full backdrop-blur border border-white/10 transition-all shadow-sm"
+              className="hidden md:block p-3 bg-white/10 hover:bg-white/20 rounded-full backdrop-blur border border-white/10 transition-all shadow-sm"
               aria-label="Toggle Dark Mode"
             >
               {darkMode ? <Sun size={20} className="text-amber-300" /> : <Moon size={20} className="text-slate-100" />}
@@ -228,70 +234,70 @@ export default function App() {
           </div>
         </header>
 
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+        <main className="max-w-7xl mx-auto px-3 sm:px-6 py-6 md:py-8">
           
           {/* Integrated Control Section */}
-          <div className="flex flex-col bg-white dark:bg-[#0b1121]/40 dark:backdrop-blur-md rounded-2xl shadow-sm border border-slate-200 dark:border-white/10 mb-8 transition-colors relative overflow-hidden">
+          <div className="flex flex-col bg-white dark:bg-[#0b1121]/40 dark:backdrop-blur-md rounded-2xl shadow-sm border border-slate-200 dark:border-white/10 mb-6 md:mb-8 transition-colors relative overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-emerald-500/5 pointer-events-none"></div>
             
             {/* Top Bar: View Mode & Year */}
-            <div className="relative z-10 p-5 border-b border-slate-200 dark:border-white/10 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div className="relative z-10 p-4 md:p-5 border-b border-slate-200 dark:border-white/10 flex flex-col md:flex-row justify-between items-center gap-4">
               <div className="flex bg-slate-100 dark:bg-black/40 p-1 rounded-xl border border-slate-200 dark:border-white/5 w-full md:w-auto">
-                <button onClick={() => setViewMode('timeline')} className={`flex-1 md:flex-none px-6 py-2.5 rounded-lg text-sm font-bold flex items-center justify-center gap-2 transition-all ${viewMode === 'timeline' ? 'bg-orange-500 text-white shadow-lg' : 'text-slate-500 dark:text-slate-400 hover:bg-white dark:hover:bg-white/5 hover:text-slate-700 dark:hover:text-slate-200'}`}>
-                  <Clock size={16}/> State Timeline
+                <button onClick={() => setViewMode('timeline')} className={`flex-1 md:flex-none px-4 md:px-6 py-2.5 rounded-lg text-xs md:text-sm font-bold flex items-center justify-center gap-2 transition-all ${viewMode === 'timeline' ? 'bg-orange-500 text-white shadow-lg' : 'text-slate-500 dark:text-slate-400 hover:bg-white dark:hover:bg-white/5 hover:text-slate-700 dark:hover:text-slate-200'}`}>
+                  <Clock size={14} className="md:w-4 md:h-4"/> State Timeline
                 </button>
-                <button onClick={() => setViewMode('compare')} className={`flex-1 md:flex-none px-6 py-2.5 rounded-lg text-sm font-bold flex items-center justify-center gap-2 transition-all ${viewMode === 'compare' ? 'bg-green-600 text-white shadow-lg' : 'text-slate-500 dark:text-slate-400 hover:bg-white dark:hover:bg-white/5 hover:text-slate-700 dark:hover:text-slate-200'}`}>
-                  <BarChart2 size={16}/> Compare Matrix
+                <button onClick={() => setViewMode('compare')} className={`flex-1 md:flex-none px-4 md:px-6 py-2.5 rounded-lg text-xs md:text-sm font-bold flex items-center justify-center gap-2 transition-all ${viewMode === 'compare' ? 'bg-green-600 text-white shadow-lg' : 'text-slate-500 dark:text-slate-400 hover:bg-white dark:hover:bg-white/5 hover:text-slate-700 dark:hover:text-slate-200'}`}>
+                  <BarChart2 size={14} className="md:w-4 md:h-4"/> Compare Matrix
                 </button>
               </div>
               
               {viewMode === 'compare' ? (
                 <div className="flex items-center gap-3 w-full md:w-auto bg-slate-50 dark:bg-[#0f172a]/80 p-2.5 px-4 rounded-xl border border-slate-200 dark:border-white/10">
-                    <span className="text-sm font-semibold text-slate-500 dark:text-slate-400 whitespace-nowrap">Target Year:</span>
-                    <div className="relative">
-                      <select value={compareYear} onChange={(e) => setCompareYear(Number(e.target.value))} className="appearance-none bg-transparent text-amber-600 dark:text-amber-400 font-bold focus:outline-none pr-6 cursor-pointer text-base">
+                    <span className="text-xs md:text-sm font-semibold text-slate-500 dark:text-slate-400 whitespace-nowrap">Target Year:</span>
+                    <div className="relative w-full md:w-auto">
+                      <select value={compareYear} onChange={(e) => setCompareYear(Number(e.target.value))} className="w-full appearance-none bg-transparent text-amber-600 dark:text-amber-400 font-bold focus:outline-none pr-6 cursor-pointer text-sm md:text-base">
                           {[2025, 2030, 2035, 2040, 2045, 2050].map(y => <option key={y} value={y} className="text-slate-800">{y}</option>)}
                       </select>
                       <ChevronDown className="absolute right-0 top-1 text-amber-600 dark:text-amber-400 pointer-events-none" size={16} />
                     </div>
                 </div>
               ) : (
-                <div className="text-xs text-slate-500 dark:text-slate-400/80 font-medium">Viewing 25-year predictive data (2025 - 2050)</div>
+                <div className="hidden md:block text-xs text-slate-500 dark:text-slate-400/80 font-medium">Viewing 25-year predictive data (2025 - 2050)</div>
               )}
             </div>
 
             {/* Bottom Bar: State Selectors */}
-            <div className="relative z-10 p-5 flex flex-col md:flex-row items-center gap-4">
+            <div className="relative z-10 p-4 md:p-5 flex flex-col md:flex-row items-center gap-4">
               {viewMode === 'timeline' ? (
                 <>
                   <div className="flex items-center gap-3 w-full md:w-auto">
-                    <div className="p-3 bg-blue-50 dark:bg-blue-500/20 rounded-xl hidden sm:block border border-blue-100 dark:border-blue-400/30 shadow-sm">
-                      <MapPin className="text-blue-600 dark:text-blue-300" size={24} />
+                    <div className="p-2 md:p-3 bg-blue-50 dark:bg-blue-500/20 rounded-xl hidden sm:block border border-blue-100 dark:border-blue-400/30 shadow-sm">
+                      <Map className="text-blue-600 dark:text-blue-300" size={24} />
                     </div>
                     <div>
                       <h2 className="text-[10px] uppercase font-black text-slate-400 mb-1 tracking-widest">
                         Primary Data Focus
                       </h2>
-                      {activeStateInfo && <span className="px-2.5 py-0.5 rounded-full text-[10px] uppercase font-bold bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-slate-300">{activeStateInfo.type.replace('_', ' ')}</span>}
+                      {activeStateInfo && <span className="px-2 py-0.5 rounded-full text-[9px] md:text-[10px] uppercase font-bold bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-slate-300">{activeStateInfo.type.replace('_', ' ')}</span>}
                     </div>
                   </div>
                   <div className="relative w-full md:w-96 md:ml-auto">
                     <select 
                       value={selectedState} 
                       onChange={e => setSelectedState(e.target.value)}
-                      className="w-full appearance-none bg-slate-50 dark:bg-[#0f172a]/80 border border-slate-300 dark:border-white/10 text-slate-800 dark:text-slate-200 py-3.5 px-5 pr-12 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500 transition-all font-semibold cursor-pointer shadow-sm text-lg"
+                      className="w-full appearance-none bg-slate-50 dark:bg-[#0f172a]/80 border border-slate-300 dark:border-white/10 text-slate-800 dark:text-slate-200 py-3 md:py-3.5 px-4 md:px-5 pr-10 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500 transition-all font-semibold cursor-pointer shadow-sm text-base md:text-lg"
                     >
                       {STATES_INFO.map(d => <option key={d.name} value={d.name}>{d.name}</option>)}
                     </select>
-                    <ChevronDown className="absolute right-4 top-4 text-slate-500 pointer-events-none" size={20} />
+                    <ChevronDown className="absolute right-3 md:right-4 top-3 md:top-4 text-slate-500 pointer-events-none" size={20} />
                   </div>
                 </>
               ) : (
-                <div className="flex flex-col md:flex-row flex-wrap gap-4 w-full">
+                <div className="flex flex-col md:flex-row flex-wrap gap-3 w-full">
                     {compareStates.map((stateName, idx) => {
                        return (
-                        <div key={idx} className="flex-1 min-w-[240px] relative">
-                            <div className="absolute -top-3 left-4 bg-white dark:bg-[#0f172a] px-2 text-[10px] font-bold text-amber-600 dark:text-amber-400 rounded-full border border-slate-200 dark:border-white/10 z-10 flex items-center gap-1 shadow-sm">
+                        <div key={idx} className="flex-1 w-full md:min-w-[240px] relative mt-2 md:mt-0">
+                            <div className="absolute -top-3 left-4 bg-white dark:bg-[#0f172a] px-2 text-[9px] md:text-[10px] font-bold text-amber-600 dark:text-amber-400 rounded-full border border-slate-200 dark:border-white/10 z-10 flex items-center gap-1 shadow-sm">
                               State {idx + 1}
                             </div>
                             <select 
@@ -301,7 +307,7 @@ export default function App() {
                                   newStates[idx] = e.target.value;
                                   setCompareStates(newStates);
                               }} 
-                              className="w-full appearance-none bg-slate-50 dark:bg-[#0f172a]/80 border border-slate-300 dark:border-white/10 text-slate-800 dark:text-slate-200 py-3.5 px-4 pr-10 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 transition-all font-semibold cursor-pointer shadow-sm relative z-0"
+                              className="w-full appearance-none bg-slate-50 dark:bg-[#0f172a]/80 border border-slate-300 dark:border-white/10 text-slate-800 dark:text-slate-200 py-3 px-4 pr-10 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 transition-all font-semibold cursor-pointer shadow-sm relative z-0 text-sm md:text-base"
                             >
                                 {STATES_INFO.map(d => (
                                   <option key={d.name} value={d.name} disabled={compareStates.includes(d.name) && d.name !== stateName}>
@@ -309,12 +315,12 @@ export default function App() {
                                   </option>
                                 ))}
                             </select>
-                            <ChevronDown className="absolute right-3 top-4 text-slate-500 pointer-events-none z-10" size={18} />
+                            <ChevronDown className="absolute right-3 top-3.5 text-slate-500 pointer-events-none z-10" size={16} />
                             
                             {compareStates.length > 1 && (
                                 <button 
                                   onClick={() => setCompareStates(compareStates.filter((_, i) => i !== idx))} 
-                                  className="absolute -top-2 -right-2 bg-rose-500 dark:bg-rose-600 text-white rounded-full p-1.5 shadow-md hover:bg-rose-600 hover:scale-110 transition-all z-20"
+                                  className="absolute -top-2 -right-1 md:-right-2 bg-rose-500 dark:bg-rose-600 text-white rounded-full p-1 shadow-md hover:bg-rose-600 hover:scale-110 transition-all z-20"
                                   title="Remove State"
                                 >
                                   <X size={12} strokeWidth={3} />
@@ -328,9 +334,9 @@ export default function App() {
                               const available = STATES_INFO.find(d => !compareStates.includes(d.name));
                               if(available) setCompareStates([...compareStates, available.name]);
                           }} 
-                          className="flex-1 min-w-[240px] flex items-center justify-center gap-2 border-2 border-dashed border-slate-300 dark:border-white/20 bg-slate-50/50 dark:bg-[#0f172a]/30 rounded-xl text-slate-500 dark:text-slate-400 hover:text-amber-600 hover:border-amber-500 hover:bg-amber-50 dark:hover:text-amber-400 dark:hover:border-amber-400/50 dark:hover:bg-amber-900/20 transition-all py-3 font-bold"
+                          className="flex-1 w-full md:min-w-[240px] flex items-center justify-center gap-2 border-2 border-dashed border-slate-300 dark:border-white/20 bg-slate-50/50 dark:bg-[#0f172a]/30 rounded-xl text-slate-500 dark:text-slate-400 hover:text-amber-600 hover:border-amber-500 hover:bg-amber-50 dark:hover:text-amber-400 dark:hover:border-amber-400/50 dark:hover:bg-amber-900/20 transition-all py-3 font-bold text-sm md:text-base mt-2 md:mt-0"
                         >
-                           <Plus size={18} strokeWidth={3} /> Add State
+                           <Plus size={16} strokeWidth={3} className="md:w-[18px] md:h-[18px]" /> Add State
                         </button>
                     )}
                 </div>
@@ -339,37 +345,37 @@ export default function App() {
           </div>
 
           {/* Premium Highlights Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-8">
             {viewMode === 'timeline' ? (
               summaryMetrics.map((m, idx) => {
                 if (!m || !m.name) return null;
                 const Icon = m.icon;
                 return (
-                <div key={m.name || idx} className={`bg-gradient-to-br from-white to-slate-50 dark:from-[#111827]/80 dark:to-[#020617]/80 dark:backdrop-blur-xl p-6 rounded-3xl border border-slate-200 dark:border-white/10 shadow-lg ${m.shadow} relative overflow-hidden group hover:-translate-y-1 hover:shadow-[0_10px_40px_-10px_rgba(0,0,0,0.5)] transition-all duration-300`}>
+                <div key={m.name || idx} className={`bg-gradient-to-br from-white to-slate-50 dark:from-[#111827]/80 dark:to-[#020617]/80 dark:backdrop-blur-xl p-5 md:p-6 rounded-2xl md:rounded-3xl border border-slate-200 dark:border-white/10 shadow-lg ${m.shadow} relative overflow-hidden group hover:-translate-y-1 hover:shadow-[0_10px_40px_-10px_rgba(0,0,0,0.5)] transition-all duration-300`}>
                   <div className="absolute -top-4 -right-4 p-5 opacity-[0.03] dark:opacity-[0.05] group-hover:opacity-10 transition-opacity group-hover:scale-110 duration-500">
-                     <Icon size={140} className="dark:text-white" />
+                     <Icon size={120} className="md:w-[140px] md:h-[140px] dark:text-white" />
                   </div>
                   <div className="absolute inset-0 bg-gradient-to-br from-white/50 to-transparent dark:from-white/5 pointer-events-none"></div>
                   
-                  <div className="relative z-10 flex justify-between items-start mb-6">
-                    <div className={`p-3 rounded-2xl bg-gradient-to-br ${m.color} text-white shadow-md`}>
-                      <Icon size={24} />
+                  <div className="relative z-10 flex justify-between items-start mb-4 md:mb-6">
+                    <div className={`p-2.5 md:p-3 rounded-xl md:rounded-2xl bg-gradient-to-br ${m.color} text-white shadow-md`}>
+                      <Icon size={20} className="md:w-6 md:h-6" />
                     </div>
-                    <div className="text-[10px] uppercase tracking-widest font-bold px-3 py-1.5 bg-white/80 dark:bg-black/40 backdrop-blur-md text-slate-700 dark:text-slate-300 rounded-full border border-slate-200 dark:border-white/10">
-                      2050 Projection
+                    <div className="text-[9px] md:text-[10px] uppercase tracking-widest font-bold px-2.5 py-1 md:px-3 md:py-1.5 bg-white/80 dark:bg-black/40 backdrop-blur-md text-slate-700 dark:text-slate-300 rounded-full border border-slate-200 dark:border-white/10">
+                      2050 Proj
                     </div>
                   </div>
 
-                  <p className="text-sm font-semibold text-slate-500 dark:text-slate-300/80 mb-2 relative z-10">{m.name}</p>
-                  <div className="flex items-end gap-3 relative z-10 mb-5">
-                    <h3 className="text-4xl font-black text-slate-800 dark:text-transparent dark:bg-clip-text dark:bg-gradient-to-r dark:from-white dark:to-slate-300 tracking-tight">{m.values?.[2050] || 'N/A'}</h3>
+                  <p className="text-xs md:text-sm font-semibold text-slate-500 dark:text-slate-300/80 mb-1 md:mb-2 relative z-10">{m.name}</p>
+                  <div className="flex items-end gap-3 relative z-10 mb-4 md:mb-5">
+                    <h3 className="text-3xl md:text-4xl font-black text-slate-800 dark:text-transparent dark:bg-clip-text dark:bg-gradient-to-r dark:from-white dark:to-slate-300 tracking-tight">{m.values?.[2050] || 'N/A'}</h3>
                   </div>
                   
-                  <div className="flex items-center gap-2 text-sm pt-4 border-t border-slate-200/50 dark:border-white/10 relative z-10">
-                    <span className="text-slate-500 dark:text-slate-400 font-medium text-xs">From 2025 base:</span>
-                    <span className="font-bold text-slate-700 dark:text-white text-xs">{m.values?.[2025] || 'N/A'}</span>
+                  <div className="flex items-center gap-2 text-xs md:text-sm pt-3 md:pt-4 border-t border-slate-200/50 dark:border-white/10 relative z-10">
+                    <span className="text-slate-500 dark:text-slate-400 font-medium">From 2025 base:</span>
+                    <span className="font-bold text-slate-700 dark:text-white">{m.values?.[2025] || 'N/A'}</span>
                     <div className="ml-auto">
-                      <Activity size={16} className="text-slate-400 dark:text-slate-500" />
+                      <Activity size={14} className="text-slate-400 dark:text-slate-500 md:w-4 md:h-4" />
                     </div>
                   </div>
                 </div>
@@ -381,27 +387,27 @@ export default function App() {
                 const colors = ["from-blue-500 to-indigo-400", "from-amber-500 to-orange-400", "from-emerald-500 to-teal-400"];
                 const Icon = icons[idx];
                 return (
-                  <div key={metricName} className={`bg-gradient-to-br from-white to-slate-50 dark:from-[#111827]/80 dark:to-[#020617]/80 dark:backdrop-blur-xl p-6 rounded-3xl border border-slate-200 dark:border-white/10 shadow-lg shadow-${colors[idx].split('-')[1]}/20 relative overflow-hidden flex flex-col`}>
+                  <div key={metricName} className={`bg-gradient-to-br from-white to-slate-50 dark:from-[#111827]/80 dark:to-[#020617]/80 dark:backdrop-blur-xl p-5 md:p-6 rounded-2xl md:rounded-3xl border border-slate-200 dark:border-white/10 shadow-lg shadow-${colors[idx].split('-')[1]}/20 relative overflow-hidden flex flex-col`}>
                     <div className="absolute -top-4 -right-4 p-5 opacity-[0.03] dark:opacity-[0.05]">
-                       <Icon size={120} className="dark:text-white" />
+                       <Icon size={100} className="md:w-[120px] md:h-[120px] dark:text-white" />
                     </div>
-                    <div className="relative z-10 flex items-center gap-3 mb-5 border-b border-slate-200 dark:border-white/10 pb-4">
-                      <div className={`p-2.5 rounded-xl bg-gradient-to-br ${colors[idx]} text-white shadow-sm`}>
-                        <Icon size={20} />
+                    <div className="relative z-10 flex items-center gap-3 mb-4 border-b border-slate-200 dark:border-white/10 pb-3 md:pb-4">
+                      <div className={`p-2 md:p-2.5 rounded-lg md:rounded-xl bg-gradient-to-br ${colors[idx]} text-white shadow-sm`}>
+                        <Icon size={16} className="md:w-5 md:h-5" />
                       </div>
-                      <p className="text-sm font-bold text-slate-700 dark:text-slate-200">{metricName}</p>
+                      <p className="text-xs md:text-sm font-bold text-slate-700 dark:text-slate-200">{metricName}</p>
                     </div>
 
-                    <div className="relative z-10 flex-1 flex flex-col justify-center gap-4">
+                    <div className="relative z-10 flex-1 flex flex-col justify-center gap-3 md:gap-4">
                        {generatedCompareData.map(cd => {
                           const valObj = cd.data.find(m => m.name === metricName);
                           const val = valObj ? valObj.values[compareYear] : 'N/A';
                           return (
                              <div key={cd.name} className="flex justify-between items-end">
                                 <div className="flex flex-col">
-                                  <span className="text-sm font-semibold text-slate-700 dark:text-slate-300 truncate max-w-[150px]">{cd.name}</span>
+                                  <span className="text-xs md:text-sm font-semibold text-slate-700 dark:text-slate-300 truncate max-w-[120px] md:max-w-[150px]">{cd.name}</span>
                                 </div>
-                                <span className="text-xl font-black text-slate-800 dark:text-white">{val}</span>
+                                <span className="text-lg md:text-xl font-black text-slate-800 dark:text-white">{val}</span>
                              </div>
                           )
                        })}
@@ -412,28 +418,30 @@ export default function App() {
             )}
           </div>
           
-          <h3 className="text-xl font-bold text-slate-800 dark:text-slate-100 mt-4 mb-4 flex items-center gap-3 px-2">
-            <div className="p-2 rounded-xl bg-slate-200 dark:bg-white/10 text-slate-700 dark:text-slate-300"><Activity size={20} /></div>
+          <h3 className="text-lg md:text-xl font-bold text-slate-800 dark:text-slate-100 mt-8 md:mt-4 mb-4 flex items-center gap-3 px-2">
+            <div className="p-1.5 md:p-2 rounded-lg md:rounded-xl bg-slate-200 dark:bg-white/10 text-slate-700 dark:text-slate-300"><Activity size={18} className="md:w-5 md:h-5" /></div>
             Socio-Economic Evolution Matrix
           </h3>
 
-          {/* Main Socio-Economic Table */}
-          <div className="bg-white dark:bg-[#070b14]/80 dark:backdrop-blur-xl rounded-2xl shadow-xl overflow-hidden border border-slate-200 dark:border-white/10 transition-colors relative mb-12">
-            <div className="overflow-x-auto w-full relative z-10">
-              <table className="w-full text-left border-collapse min-w-[950px]">
-                <thead className="bg-slate-100 dark:bg-[#0f172a] border-b border-slate-200 dark:border-white/10 text-sm uppercase tracking-wider">
+          {/* Main Socio-Economic Table - Fully Mobile Responsive */}
+          <div className="bg-white dark:bg-[#070b14]/80 dark:backdrop-blur-xl rounded-xl md:rounded-2xl shadow-xl border border-slate-200 dark:border-white/10 transition-colors relative mb-8 md:mb-12">
+            <div className="overflow-x-auto w-full relative z-10 custom-scrollbar rounded-xl md:rounded-2xl">
+              <table className="w-full text-left border-collapse">
+                <thead className="bg-slate-100 dark:bg-[#0f172a] border-b border-slate-200 dark:border-white/10 text-xs md:text-sm uppercase tracking-wider">
                   <tr>
-                    <th className="px-6 py-5 font-bold text-slate-600 dark:text-slate-300 sticky left-0 bg-slate-100 dark:bg-[#0f172a] z-20 shadow-[1px_0_0_0_#e2e8f0] dark:shadow-[1px_0_0_0_rgba(255,255,255,0.05)] w-1/3 min-w-[300px]">
-                      Metric <span className="normal-case text-xs font-normal opacity-70 ml-1">({generatedData.filter(m => m.category !== 'Religion').length} Total)</span>
+                    {/* Responsive Sticky Left Header */}
+                    <th className="px-3 md:px-6 py-3 md:py-5 font-bold text-slate-600 dark:text-slate-300 sticky left-0 bg-slate-100 dark:bg-[#0f172a] z-20 shadow-[1px_0_0_0_#e2e8f0] dark:shadow-[1px_0_0_0_rgba(255,255,255,0.05)] w-[140px] min-w-[140px] max-w-[140px] md:w-auto md:min-w-[300px] md:max-w-[300px] whitespace-normal leading-tight">
+                      Metric <span className="normal-case text-[9px] md:text-xs font-normal opacity-70 block md:inline md:ml-1">({generatedData.filter(m => m.category !== 'Religion').length} Total)</span>
                     </th>
                     {viewMode === 'timeline' ? (
                       <>
                         {[2025, 2030, 2035, 2040, 2045, 2050].map(y => (
-                          <th key={y} className="px-6 py-5 font-extrabold text-blue-600 dark:text-transparent dark:bg-clip-text dark:bg-gradient-to-b dark:from-blue-300 dark:to-emerald-300 text-center min-w-[110px]">
+                          <th key={y} className="px-3 md:px-6 py-3 md:py-5 font-extrabold text-blue-600 dark:text-transparent dark:bg-clip-text dark:bg-gradient-to-b dark:from-blue-300 dark:to-emerald-300 text-center min-w-[70px] md:min-w-[110px]">
                             {y}
                           </th>
                         ))}
-                        <th className="px-6 py-5 font-extrabold text-slate-500 dark:text-slate-400 text-center min-w-[100px] sticky right-0 bg-slate-100 dark:bg-[#0f172a] shadow-[-1px_0_0_0_#e2e8f0] dark:shadow-[-1px_0_0_0_rgba(255,255,255,0.05)] z-20">
+                        {/* Responsive Sticky Right Header */}
+                        <th className="px-3 md:px-6 py-3 md:py-5 font-extrabold text-slate-500 dark:text-slate-400 text-center min-w-[60px] md:min-w-[100px] sticky right-0 bg-slate-100 dark:bg-[#0f172a] shadow-[-1px_0_0_0_#e2e8f0] dark:shadow-[-1px_0_0_0_rgba(255,255,255,0.05)] z-20">
                           Trend
                         </th>
                       </>
@@ -441,7 +449,7 @@ export default function App() {
                       compareStates.map((sName, idx) => {
                         const isLast = idx === compareStates.length - 1;
                         return (
-                          <th key={sName} className={`px-6 ${isLast ? 'pr-12' : ''} py-5 font-extrabold text-center min-w-[180px] w-[22%] ${idx === 0 ? 'text-blue-600 dark:text-blue-300' : idx === 1 ? 'text-amber-600 dark:text-amber-300' : 'text-emerald-600 dark:text-emerald-300'}`}>
+                          <th key={sName} className={`px-4 md:px-6 ${isLast ? 'pr-8 md:pr-12' : ''} py-3 md:py-5 font-extrabold text-center min-w-[120px] md:min-w-[180px] w-[22%] ${idx === 0 ? 'text-blue-600 dark:text-blue-300' : idx === 1 ? 'text-amber-600 dark:text-amber-300' : 'text-emerald-600 dark:text-emerald-300'}`}>
                             {sName}
                           </th>
                         );
@@ -457,40 +465,40 @@ export default function App() {
                     const Icon = cat.icon;
                     return (
                       <React.Fragment key={cat.id}>
-                        {/* Category Row */}
+                        {/* Mobile-Friendly Category Row (Sticky Text, Not Sticky Cell) */}
                         <tr className="bg-slate-50/80 dark:bg-[#111827]">
-                          <td colSpan={viewMode === 'timeline' ? 8 : compareStates.length + 1} className="px-6 py-4 font-bold text-slate-800 dark:text-slate-200 sticky left-0 shadow-[1px_0_0_0_#e2e8f0] dark:shadow-[1px_0_0_0_rgba(255,255,255,0.05)] bg-slate-50/95 dark:bg-[#111827] z-10">
-                            <div className="flex items-center gap-3">
-                              <div className={`p-2 bg-white dark:bg-black/30 rounded-lg shadow-sm border border-slate-100 dark:border-white/10 ${cat.color}`}>
-                                <Icon size={18} />
+                          <td colSpan={viewMode === 'timeline' ? 8 : compareStates.length + 1} className="py-2 md:py-4 font-bold text-slate-800 dark:text-slate-200 bg-slate-50/95 dark:bg-[#111827]">
+                            <div className="sticky left-4 md:left-6 inline-flex items-center gap-2 md:gap-3">
+                              <div className={`p-1.5 md:p-2 bg-white dark:bg-black/30 rounded-md md:rounded-lg shadow-sm border border-slate-100 dark:border-white/10 ${cat.color}`}>
+                                <Icon size={14} className="md:w-[18px] md:h-[18px]" />
                               </div>
-                              <span className="tracking-wide uppercase text-sm dark:text-transparent dark:bg-clip-text dark:bg-gradient-to-r dark:from-slate-100 dark:to-slate-300">{cat.id}</span>
+                              <span className="tracking-wide uppercase text-[10px] md:text-sm dark:text-transparent dark:bg-clip-text dark:bg-gradient-to-r dark:from-slate-100 dark:to-slate-300">{cat.id}</span>
                             </div>
                           </td>
                         </tr>
                         {/* Metric Rows */}
                         {catMetrics.map((metric) => (
                            <tr key={metric.name} className="hover:bg-blue-50/50 dark:hover:bg-white/[0.03] transition-colors group">
-                              <td className="px-6 py-4 text-sm font-medium text-slate-700 dark:text-slate-300 sticky left-0 bg-white dark:bg-[#070b14] group-hover:bg-blue-50/50 dark:group-hover:bg-[#0f1524] z-10 shadow-[1px_0_0_0_#e2e8f0] dark:shadow-[1px_0_0_0_rgba(255,255,255,0.05)] transition-colors">
+                              <td className="px-3 md:px-6 py-3 md:py-4 text-[10px] md:text-sm font-medium text-slate-700 dark:text-slate-300 sticky left-0 bg-white dark:bg-[#070b14] group-hover:bg-blue-50/50 dark:group-hover:bg-[#0f1524] z-10 shadow-[1px_0_0_0_#e2e8f0] dark:shadow-[1px_0_0_0_rgba(255,255,255,0.05)] transition-colors w-[140px] min-w-[140px] max-w-[140px] md:w-auto md:min-w-[300px] md:max-w-none whitespace-normal leading-snug">
                                 {metric.name}
                               </td>
                               
                               {viewMode === 'timeline' ? (
                                 <>
                                   {[2025, 2030, 2035, 2040, 2045, 2050].map(y => (
-                                    <td key={y} className="px-6 py-4 text-sm text-center font-mono font-medium text-slate-600 dark:text-slate-400 group-hover:text-blue-700 dark:group-hover:text-amber-200 transition-colors">
+                                    <td key={y} className="px-3 md:px-6 py-3 md:py-4 text-[11px] md:text-sm text-center font-mono font-medium text-slate-600 dark:text-slate-400 group-hover:text-blue-700 dark:group-hover:text-amber-200 transition-colors">
                                       {metric.values[y]}
                                     </td>
                                   ))}
-                                  <td className="px-6 py-4 text-center sticky right-0 bg-white dark:bg-[#070b14] group-hover:bg-blue-50/50 dark:group-hover:bg-[#0f1524] z-10 shadow-[-1px_0_0_0_#e2e8f0] dark:shadow-[-1px_0_0_0_rgba(255,255,255,0.05)] transition-colors">
+                                  <td className="px-3 md:px-6 py-3 md:py-4 text-center sticky right-0 bg-white dark:bg-[#070b14] group-hover:bg-blue-50/50 dark:group-hover:bg-[#0f1524] z-10 shadow-[-1px_0_0_0_#e2e8f0] dark:shadow-[-1px_0_0_0_rgba(255,255,255,0.05)] transition-colors">
                                     <div className="flex justify-center">
                                       {(() => {
                                         const trend = getTrend(metric.values[2025], metric.values[2050], metric.name);
                                         const TIcon = trend.icon;
                                         if(!TIcon) return null;
                                         return (
-                                          <div className={`p-1.5 rounded-lg ${trend.bg} ${trend.color} flex items-center justify-center`} title="25-Year Trend">
-                                            <TIcon size={16} strokeWidth={3} />
+                                          <div className={`p-1 md:p-1.5 rounded-md md:rounded-lg ${trend.bg} ${trend.color} flex items-center justify-center`} title="25-Year Trend">
+                                            <TIcon size={14} className="md:w-4 md:h-4" strokeWidth={3} />
                                           </div>
                                         );
                                       })()}
@@ -502,7 +510,7 @@ export default function App() {
                                     const isLast = idx === generatedCompareData.length - 1;
                                     const cellMetric = cd.data.find(m => m.name === metric.name);
                                     return (
-                                        <td key={cd.name} className={`px-6 ${isLast ? 'pr-12' : ''} py-4 text-base text-center font-mono font-bold text-slate-700 dark:text-slate-200 group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors w-[22%]`}>
+                                        <td key={cd.name} className={`px-4 md:px-6 ${isLast ? 'pr-8 md:pr-12' : ''} py-3 md:py-4 text-xs md:text-base text-center font-mono font-bold text-slate-700 dark:text-slate-200 group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors w-[22%]`}>
                                             {cellMetric?.values[compareYear] || '-'}
                                         </td>
                                     )
@@ -518,28 +526,28 @@ export default function App() {
             </div>
           </div>
           
-          <h3 className="text-xl font-bold text-slate-800 dark:text-slate-100 mt-12 mb-4 flex items-center gap-3 px-2">
-            <div className="p-2 rounded-xl bg-orange-100 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400"><Users size={20} /></div>
+          <h3 className="text-lg md:text-xl font-bold text-slate-800 dark:text-slate-100 mt-8 md:mt-12 mb-4 flex items-center gap-3 px-2">
+            <div className="p-1.5 md:p-2 rounded-lg md:rounded-xl bg-orange-100 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400"><Users size={18} className="md:w-5 md:h-5" /></div>
             Religious Demographics Projections
           </h3>
 
-          {/* Religious Data Table */}
-          <div className="bg-white dark:bg-[#070b14]/80 dark:backdrop-blur-xl rounded-2xl shadow-xl overflow-hidden border border-slate-200 dark:border-white/10 transition-colors relative mb-12">
-            <div className="overflow-x-auto w-full relative z-10">
-              <table className="w-full text-left border-collapse min-w-[950px]">
-                <thead className="bg-slate-100 dark:bg-[#0f172a] border-b border-slate-200 dark:border-white/10 text-sm uppercase tracking-wider">
+          {/* Religious Data Table - Fully Mobile Responsive */}
+          <div className="bg-white dark:bg-[#070b14]/80 dark:backdrop-blur-xl rounded-xl md:rounded-2xl shadow-xl border border-slate-200 dark:border-white/10 transition-colors relative mb-12">
+            <div className="overflow-x-auto w-full relative z-10 custom-scrollbar rounded-xl md:rounded-2xl">
+              <table className="w-full text-left border-collapse">
+                <thead className="bg-slate-100 dark:bg-[#0f172a] border-b border-slate-200 dark:border-white/10 text-xs md:text-sm uppercase tracking-wider">
                   <tr>
-                    <th className="px-6 py-5 font-bold text-slate-600 dark:text-slate-300 sticky left-0 bg-slate-100 dark:bg-[#0f172a] z-20 shadow-[1px_0_0_0_#e2e8f0] dark:shadow-[1px_0_0_0_rgba(255,255,255,0.05)] w-1/3 min-w-[300px]">
-                      Metric <span className="normal-case text-xs font-normal opacity-70 ml-1">({generatedData.filter(m => m.category === 'Religion').length} Total)</span>
+                    <th className="px-3 md:px-6 py-3 md:py-5 font-bold text-slate-600 dark:text-slate-300 sticky left-0 bg-slate-100 dark:bg-[#0f172a] z-20 shadow-[1px_0_0_0_#e2e8f0] dark:shadow-[1px_0_0_0_rgba(255,255,255,0.05)] w-[140px] min-w-[140px] max-w-[140px] md:w-auto md:min-w-[300px] md:max-w-[300px] whitespace-normal leading-tight">
+                      Metric <span className="normal-case text-[9px] md:text-xs font-normal opacity-70 block md:inline md:ml-1">({generatedData.filter(m => m.category === 'Religion').length} Total)</span>
                     </th>
                     {viewMode === 'timeline' ? (
                       <>
                         {[2025, 2030, 2035, 2040, 2045, 2050].map(y => (
-                          <th key={y} className="px-6 py-5 font-extrabold text-amber-600 dark:text-transparent dark:bg-clip-text dark:bg-gradient-to-b dark:from-amber-300 dark:to-orange-300 text-center min-w-[110px]">
+                          <th key={y} className="px-3 md:px-6 py-3 md:py-5 font-extrabold text-amber-600 dark:text-transparent dark:bg-clip-text dark:bg-gradient-to-b dark:from-amber-300 dark:to-orange-300 text-center min-w-[70px] md:min-w-[110px]">
                             {y}
                           </th>
                         ))}
-                        <th className="px-6 py-5 font-extrabold text-slate-500 dark:text-slate-400 text-center min-w-[100px] sticky right-0 bg-slate-100 dark:bg-[#0f172a] shadow-[-1px_0_0_0_#e2e8f0] dark:shadow-[-1px_0_0_0_rgba(255,255,255,0.05)] z-20">
+                        <th className="px-3 md:px-6 py-3 md:py-5 font-extrabold text-slate-500 dark:text-slate-400 text-center min-w-[60px] md:min-w-[100px] sticky right-0 bg-slate-100 dark:bg-[#0f172a] shadow-[-1px_0_0_0_#e2e8f0] dark:shadow-[-1px_0_0_0_rgba(255,255,255,0.05)] z-20">
                           Trend
                         </th>
                       </>
@@ -547,7 +555,7 @@ export default function App() {
                       compareStates.map((sName, idx) => {
                         const isLast = idx === compareStates.length - 1;
                         return (
-                          <th key={sName} className={`px-6 ${isLast ? 'pr-12' : ''} py-5 font-extrabold text-center min-w-[180px] w-[22%] ${idx === 0 ? 'text-blue-600 dark:text-blue-300' : idx === 1 ? 'text-amber-600 dark:text-amber-300' : 'text-emerald-600 dark:text-emerald-300'}`}>
+                          <th key={sName} className={`px-4 md:px-6 ${isLast ? 'pr-8 md:pr-12' : ''} py-3 md:py-5 font-extrabold text-center min-w-[120px] md:min-w-[180px] w-[22%] ${idx === 0 ? 'text-blue-600 dark:text-blue-300' : idx === 1 ? 'text-amber-600 dark:text-amber-300' : 'text-emerald-600 dark:text-emerald-300'}`}>
                             {sName}
                           </th>
                         );
@@ -563,37 +571,37 @@ export default function App() {
                     return (
                       <React.Fragment key={cat.id}>
                         <tr className="bg-slate-50/80 dark:bg-[#111827]">
-                          <td colSpan={viewMode === 'timeline' ? 8 : compareStates.length + 1} className="px-6 py-4 font-bold text-slate-800 dark:text-slate-200 sticky left-0 shadow-[1px_0_0_0_#e2e8f0] dark:shadow-[1px_0_0_0_rgba(255,255,255,0.05)] bg-slate-50/95 dark:bg-[#111827] z-10">
-                            <div className="flex items-center gap-3">
-                              <div className={`p-2 bg-white dark:bg-black/30 rounded-lg shadow-sm border border-slate-100 dark:border-white/10 ${cat.color}`}>
-                                <Icon size={18} />
+                          <td colSpan={viewMode === 'timeline' ? 8 : compareStates.length + 1} className="py-2 md:py-4 font-bold text-slate-800 dark:text-slate-200 bg-slate-50/95 dark:bg-[#111827]">
+                            <div className="sticky left-4 md:left-6 inline-flex items-center gap-2 md:gap-3">
+                              <div className={`p-1.5 md:p-2 bg-white dark:bg-black/30 rounded-md md:rounded-lg shadow-sm border border-slate-100 dark:border-white/10 ${cat.color}`}>
+                                <Icon size={14} className="md:w-[18px] md:h-[18px]" />
                               </div>
-                              <span className="tracking-wide uppercase text-sm dark:text-transparent dark:bg-clip-text dark:bg-gradient-to-r dark:from-slate-100 dark:to-slate-300">{cat.id}</span>
+                              <span className="tracking-wide uppercase text-[10px] md:text-sm dark:text-transparent dark:bg-clip-text dark:bg-gradient-to-r dark:from-slate-100 dark:to-slate-300">{cat.id}</span>
                             </div>
                           </td>
                         </tr>
                         {catMetrics.map((metric) => (
                            <tr key={metric.name} className="hover:bg-amber-50/50 dark:hover:bg-white/[0.03] transition-colors group">
-                              <td className="px-6 py-4 text-sm font-medium text-slate-700 dark:text-slate-300 sticky left-0 bg-white dark:bg-[#070b14] group-hover:bg-amber-50/50 dark:group-hover:bg-[#0f1524] z-10 shadow-[1px_0_0_0_#e2e8f0] dark:shadow-[1px_0_0_0_rgba(255,255,255,0.05)] transition-colors">
+                              <td className="px-3 md:px-6 py-3 md:py-4 text-[10px] md:text-sm font-medium text-slate-700 dark:text-slate-300 sticky left-0 bg-white dark:bg-[#070b14] group-hover:bg-amber-50/50 dark:group-hover:bg-[#0f1524] z-10 shadow-[1px_0_0_0_#e2e8f0] dark:shadow-[1px_0_0_0_rgba(255,255,255,0.05)] transition-colors w-[140px] min-w-[140px] max-w-[140px] md:w-auto md:min-w-[300px] md:max-w-none whitespace-normal leading-snug">
                                 {metric.name}
                               </td>
                               
                               {viewMode === 'timeline' ? (
                                 <>
                                   {[2025, 2030, 2035, 2040, 2045, 2050].map(y => (
-                                    <td key={y} className="px-6 py-4 text-sm text-center font-mono font-medium text-slate-600 dark:text-slate-400 group-hover:text-amber-700 dark:group-hover:text-amber-200 transition-colors">
+                                    <td key={y} className="px-3 md:px-6 py-3 md:py-4 text-[11px] md:text-sm text-center font-mono font-medium text-slate-600 dark:text-slate-400 group-hover:text-amber-700 dark:group-hover:text-amber-200 transition-colors">
                                       {metric.values[y]}
                                     </td>
                                   ))}
-                                  <td className="px-6 py-4 text-center sticky right-0 bg-white dark:bg-[#070b14] group-hover:bg-amber-50/50 dark:group-hover:bg-[#0f1524] z-10 shadow-[-1px_0_0_0_#e2e8f0] dark:shadow-[-1px_0_0_0_rgba(255,255,255,0.05)] transition-colors">
+                                  <td className="px-3 md:px-6 py-3 md:py-4 text-center sticky right-0 bg-white dark:bg-[#070b14] group-hover:bg-amber-50/50 dark:group-hover:bg-[#0f1524] z-10 shadow-[-1px_0_0_0_#e2e8f0] dark:shadow-[-1px_0_0_0_rgba(255,255,255,0.05)] transition-colors">
                                     <div className="flex justify-center">
                                       {(() => {
                                         const trend = getTrend(metric.values[2025], metric.values[2050], metric.name);
                                         const TIcon = trend.icon;
                                         if(!TIcon) return null;
                                         return (
-                                          <div className={`p-1.5 rounded-lg ${trend.bg} ${trend.color} flex items-center justify-center`} title="25-Year Trend">
-                                            <TIcon size={16} strokeWidth={3} />
+                                          <div className={`p-1 md:p-1.5 rounded-md md:rounded-lg ${trend.bg} ${trend.color} flex items-center justify-center`} title="25-Year Trend">
+                                            <TIcon size={14} className="md:w-4 md:h-4" strokeWidth={3} />
                                           </div>
                                         );
                                       })()}
@@ -605,7 +613,7 @@ export default function App() {
                                     const isLast = idx === generatedCompareData.length - 1;
                                     const cellMetric = cd.data.find(m => m.name === metric.name);
                                     return (
-                                        <td key={cd.name} className={`px-6 ${isLast ? 'pr-12' : ''} py-4 text-base text-center font-mono font-bold text-slate-700 dark:text-slate-200 group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors w-[22%]`}>
+                                        <td key={cd.name} className={`px-4 md:px-6 ${isLast ? 'pr-8 md:pr-12' : ''} py-3 md:py-4 text-xs md:text-base text-center font-mono font-bold text-slate-700 dark:text-slate-200 group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors w-[22%]`}>
                                             {cellMetric?.values[compareYear] || '-'}
                                         </td>
                                     )
@@ -623,6 +631,29 @@ export default function App() {
 
         </main>
       </div>
+      
+      {/* Add custom CSS to ensure scrollbars look good on non-mobile devices */}
+      <style dangerouslySetInnerHTML={{__html: `
+        .custom-scrollbar::-webkit-scrollbar {
+          height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: transparent; 
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: rgba(99, 102, 241, 0.2); 
+          border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: rgba(99, 102, 241, 0.5); 
+        }
+        .dark .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: rgba(255, 255, 255, 0.1); 
+        }
+        .dark .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: rgba(255, 255, 255, 0.3); 
+        }
+      `}} />
     </div>
   );
 }
